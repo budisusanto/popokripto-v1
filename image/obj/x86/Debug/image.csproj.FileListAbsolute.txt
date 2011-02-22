@@ -1,0 +1,10 @@
+c:\users\asus\documents\visual studio 2010\Projects\image\image\obj\x86\Debug\ResolveAssemblyReference.cache
+c:\users\asus\documents\visual studio 2010\Projects\image\image\obj\x86\Debug\image.Properties.Resources.resources
+c:\users\asus\documents\visual studio 2010\Projects\image\image\obj\x86\Debug\GenerateResource.read.1.tlog
+c:\users\asus\documents\visual studio 2010\Projects\image\image\obj\x86\Debug\GenerateResource.write.1.tlog
+c:\users\asus\documents\visual studio 2010\Projects\image\image\bin\Debug\image.exe
+c:\users\asus\documents\visual studio 2010\Projects\image\image\bin\Debug\image.pdb
+c:\users\asus\documents\visual studio 2010\Projects\image\image\obj\x86\Debug\image.exe
+c:\users\asus\documents\visual studio 2010\Projects\image\image\obj\x86\Debug\image.pdb
+c:\users\asus\documents\visual studio 2010\Projects\image\image\obj\x86\Debug\image.stegano_interface.resources
+C:\Users\asus\Documents\Visual Studio 2010\Projects\image\image\obj\x86\Debug\image.result.resources
