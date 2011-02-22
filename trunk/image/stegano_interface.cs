@@ -16,7 +16,7 @@ namespace image
         private bool statusencript = false;
         private string filename;
         private int modeLSB = 1;
-        private string message;
+        private byte[] message;
         private string key;
         private int[][] dummybitmap;
         Bitmap tempbitmap;
@@ -252,15 +252,7 @@ namespace image
 
             if (openFile1.FileName != "")
             {
-                StreamReader re = File.OpenText(openFile1.FileName);
-                string input = null;
-                message = "";
-
-                while ((input = re.ReadLine()) != null)
-                {
-                    message += (input + "\n");
-                }
-                re.Close();
+                message = File.ReadAllBytes(FileName);
 
                 if ((message.Length*8) > (sourcepict.Image.PhysicalDimension.Height * sourcepict.Image.PhysicalDimension.Width * 3))
                 {
@@ -269,7 +261,7 @@ namespace image
                 else // ukuran memenuhi
                 {
                     textBox1.Text = openFile1.FileName;
-                    textBox2.Text = message;
+                    //textBox2.Text = message;
                 }
             }
 

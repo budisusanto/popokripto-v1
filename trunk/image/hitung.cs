@@ -36,21 +36,5 @@ namespace image
             hasil = Math.Sqrt(jml / (m * n));
             return hasil;
         }
-        
-        public static double rms2(int m, int n, int[,] i1, int[,] i2)
-        {
-            int i,j;
-            int jml = 0;
-            double hasil;
-
-            for (i = 0; i < n; i++)
-            {
-                for (j = 0; j < m; j++)
-                    jml += (int) Math.Pow(i1[i,j]-i2[i,j],2);
-            }
-
-            hasil = Math.Sqrt(jml/(m*n));
-            return hasil;
-        }
     }
 }
