@@ -7,37 +7,35 @@ namespace image
 {
     class vigenere
     {
-        public static string encrypt(string plaintext, string key)
+        public static byte[] encrypt(byte[] plaintext, string key)
         {
             //mengenkripsi plaintext menggunakan vigenere cipher dengan kunci key
 
-            char[] tmp = new char[plaintext.Length];
-            char[] plainchar = plaintext.ToCharArray();
+            byte[] tmp = new byte[plaintext.Length];
             char[] keychar = key.ToCharArray();
 
             for (int i = 0; i < plaintext.Length; i++)
             {
-                tmp[i] = (char)(((int)plainchar[i] + (int)keychar[i % key.Length]) % 256);
+                tmp[i] = (byte)((plaintext[i] + (byte)keychar[i % key.Length]) % 256);
             }
-            return new string(tmp);
+            return tmp;
         }
 
 
-        public static string decrypt(string ciphertext, string key)
+        public static byte[] decrypt(byte[] ciphertext, string key)
         {
             //mendekripsi ciphertext vigenere cipher dengan kunci key
 
-            char[] tmp = new char[ciphertext.Length];
-            char[] cipherchar = ciphertext.ToCharArray();
+            byte[] tmp = new byte[ciphertext.Length];
             char[] keychar = key.ToCharArray();
 
             for (int i = 0; i < ciphertext.Length; i++)
             {
-                int x = ((int)cipherchar[i] - (int)keychar[i % key.Length]);
+                int x = ((int)ciphertext[i] - (int)keychar[i % key.Length]);
                 if (x < 0) x += 256;
-                tmp[i] = (char)(x % 256);
+                tmp[i] = (byte)(x % 256);
             }
-            return new string(tmp);
+            return tmp;
         }
     }
 }
