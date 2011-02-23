@@ -252,16 +252,56 @@ namespace image
 
             if (openFile1.FileName != "")
             {
-                message = File.ReadAllBytes(FileName);
+                byte[] isi = File.ReadAllBytes(filename);
+                char[] namafile = openFile1.SafeFileName.ToCharArray();
+                int ukuran = isi.Length;
 
+                //buat message
+                //format message namafile*ukuran(32 bit)isi
+                
+                message = new byte[ukuran + namafile.Length + 5];
+                int i = 0;
+                for (; i < namafile.Length; i++)
+                {
+                    message[i] = (byte)namafile[i];
+                }
+                message[i++] = (byte)'*';
+                
+                byte[] temp = BitConverter.GetBytes(ukuran);
+
+                int j = i;
+                for (; i < 4 + j; i++)
+                {
+                    message[i] = temp[i-j];
+                }
+
+                j = i;
+                for (; i < j + isi.Length; i++)
+                {
+                    message[i] = isi[i-j];
+                }
                 if ((message.Length*8) > (sourcepict.Image.PhysicalDimension.Height * sourcepict.Image.PhysicalDimension.Width * 3))
                 {
                     MessageBox.Show("ukuran file pesan terlalu besar");
                 }
                 else // ukuran memenuhi
                 {
-                    textBox1.Text = openFile1.FileName;
-                    //textBox2.Text = message;
+                    textBox1.Text = filename;
+
+                    //INI BAGIAN UNTUK MENGAMBIL PESAN
+                    i = 0;
+                    char c = (char)message[i];
+                    for (; c != '*'; i++)
+                    {
+                        MessageBox.Show(""+ (char)message[i]);
+                        c = (char)message[i];
+                    }
+                    byte[] u = new byte[4];
+                    u[0] = message[i++];
+                    u[1] = message[i++];
+                    u[2] = message[i++];
+                    u[3] = message[i++];
+                    MessageBox.Show(""+ BitConverter.ToInt32(u,0));
                 }
             }
 
