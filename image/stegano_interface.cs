@@ -244,10 +244,13 @@ namespace image
                                     else
                                         colorvalue = tempbitmap.GetPixel(x, y).B;
                                 }
-
-                                Console.WriteLine("random: " + coordinate +"(x,y):" + x + ","+ y + " bit:" + messagebit);
+                                Console.Write(colorvalue + " ");
+                                //Console.WriteLine("random: " + coordinate +"(x,y):" + x + ","+ y + " bit:" + messagebit);
                                 colorvalue = changeLast1or2Bit(colorvalue, messagebit);
+                                //Console.WriteLine("sblm ganti warna : " + tempbitmap.GetPixel(x, y).R + " " + tempbitmap.GetPixel(x, y).G + " " + tempbitmap.GetPixel(x, y).B + " " + messagebit);
                                 tempbitmap.SetPixel(x, y, changeAColorInAPixel(tempbitmap.GetPixel(x, y), colorplace, colorvalue));
+                                //Console.WriteLine("sblm ganti warna : " + tempbitmap.GetPixel(x, y).R + " " + tempbitmap.GetPixel(x, y).G + " " + tempbitmap.GetPixel(x, y).B + " " + colorvalue);
+                                Console.WriteLine();
                             }
                             Console.WriteLine();
                         }
@@ -278,6 +281,7 @@ namespace image
                                         else
                                             colorvalue = tempbitmap.GetPixel(x, y).B;
 
+                                    Console.Write(colorvalue + " ");
                                     Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);
                         
                                     colorvalue = changeLast1or2Bit(colorvalue, messagebit);
@@ -299,6 +303,7 @@ namespace image
         // prosedur untuk melakukan penyisipan pesan dari gambar bitmap yang dimasukkan
         private void btn_insert_Click(object sender, EventArgs e)
         {
+            tempbitmap.SetPixel(0, 0, Color.Black);
             insertbyPicture();
         }
 
@@ -390,6 +395,7 @@ namespace image
 
                         messagebit = getBitAtPoss(colorvalue, 9 - modeLSB, modeLSB);
 
+                        Console.Write(colorvalue + " ");
                         datahide = (byte)shiftLeftSomeBit(datahide, (byte)modeLSB);
                         datahide += messagebit;
                         Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);

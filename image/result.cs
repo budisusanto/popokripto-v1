@@ -35,7 +35,7 @@ namespace image
         private void savebyte()
         {
             SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-            saveFileDialog1.Filter = "Bitmap Image|*.bmp|JPeg Image|*.jpg|Gif Image|*.gif";
+            saveFileDialog1.Filter = "24-bit Bitmap(*.bmp)";//Bitmap Image|*.bmp|JPeg Image|*.jpg|Gif Image|*.gif";
             saveFileDialog1.Title = "Simpan hasil";
             saveFileDialog1.ShowDialog();
 
@@ -49,7 +49,7 @@ namespace image
         private void savebitmap()
         {
             SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-            saveFileDialog1.Filter = "Bitmap Image|*.bmp|JPeg Image|*.jpg|Gif Image|*.gif";
+            saveFileDialog1.Filter = "24-bit Bitmap(*.bmp)|*.bmp";//Bitmap Image|*.bmp|JPeg Image|*.jpg|Gif Image|*.gif";
             saveFileDialog1.Title = "Simpan hasil";
             saveFileDialog1.ShowDialog();
 
@@ -65,7 +65,7 @@ namespace image
                 {
                     case 1:
                         myimage.Save(fs,
-                        System.Drawing.Imaging.ImageFormat.Jpeg);
+                        System.Drawing.Imaging.ImageFormat.Bmp);
                         break;
 
                     case 2:
