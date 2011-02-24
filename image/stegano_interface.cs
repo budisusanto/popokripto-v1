@@ -245,7 +245,7 @@ namespace image
                                         colorvalue = tempbitmap.GetPixel(x, y).B;
                                 }
                                 Console.Write(colorvalue + " ");
-                                //Console.WriteLine("random: " + coordinate +"(x,y):" + x + ","+ y + " bit:" + messagebit);
+                                Console.WriteLine("random: " + coordinate +"(x,y):" + x + ","+ y + " bit:" + messagebit);
                                 colorvalue = changeLast1or2Bit(colorvalue, messagebit);
                                 //Console.WriteLine("sblm ganti warna : " + tempbitmap.GetPixel(x, y).R + " " + tempbitmap.GetPixel(x, y).G + " " + tempbitmap.GetPixel(x, y).B + " " + messagebit);
                                 tempbitmap.SetPixel(x, y, changeAColorInAPixel(tempbitmap.GetPixel(x, y), colorplace, colorvalue));
@@ -355,8 +355,6 @@ namespace image
                 byte messagebit = 1;
                 int coordinate;
                 byte colorvalue;
-
-                bool checkfilename = false;
                 byte datahide = 0;
 
                 filename = "";
@@ -407,8 +405,9 @@ namespace image
                 }
 
                 // ABIS INI BACA FILE SIZE NYA 4 BYTE
-                for (int j = 1; j < 4; ++j)
+                for (int j = 1; j <= 4; ++j)
                 {
+                    Console.WriteLine("ana cantik");
                     //coordinate = rdm.Next(1,containersize);
                     //Console.WriteLine(coordinate);
                     for (int k = 1; k <= (8/modeLSB); ++k)
