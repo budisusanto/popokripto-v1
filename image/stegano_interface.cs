@@ -369,12 +369,18 @@ namespace image
 
                 bool checkfilename = false;
                 byte datahide = 0;
-                
 
+                filename = "";
+                ///nama pesan
+                int filesize = 0;
+
+
+                // INI BAGIAN BACA NAMA FILE NYA
                 while (datahide!= 42)
                 {
                     coordinate = rdm.Next(containersize);
-                    for (int j = 1; j <= 8; ++j)
+
+                    for (int j = 1; j <= (8/modeLSB); ++j) // iterasi buat 1 atau 2 LSB
                     {
                         coordinate = rdm.Next(containersize);
                         int colorplace, coord, x, y;
@@ -398,20 +404,55 @@ namespace image
 
                         messagebit = getBitAtPoss(colorvalue, 8, modeLSB);
 
-                        datahide = (byte)shiftLeftSomeBit(datahide, 1);
+                        datahide = (byte)shiftLeftSomeBit(datahide, (byte)modeLSB);
                         datahide += messagebit;
-
                     }
-                    resultmessage[i] = datahide;
+                    filename += datahide;
+                    datahide = 0;
                 }
-                
-                // generate INSERTION MESSAGE INTO BITMAP FILE
-                for (int i = 0; i < message.Length; ++i)
+
+                // ABIS INI BACA FILE SIZE NYA 4 BYTE
+                for (int j = 1; j < 4; ++j)
                 {
-                    byte datahide = 0;
-                    if (modeLSB == 1)
+                    coordinate = rdm.Next(containersize);
+                    for (int j = 1; j <= (8/modeLSB); ++j)
                     {
-                        for (int j = 1; j <= 8; ++j)
+                        coordinate = rdm.Next(containersize);
+                        int colorplace, coord, x, y;
+                        coord = coordinate / 3;
+                        colorplace = coordinate % 3; // R, G, or B
+                        if (colorplace == 0)
+                        {
+                            colorplace = 3;
+                            coord -= 1;
+                        }
+                        y = coord / tempbitmap.Width;
+                        x = coord % tempbitmap.Width;
+
+                        if (colorplace == 1)
+                            colorvalue = tempbitmap.GetPixel(x, y).R;
+                        else
+                            if (colorplace == 2)
+                                colorvalue = tempbitmap.GetPixel(x, y).G;
+                            else
+                                colorvalue = tempbitmap.GetPixel(x, y).B;
+
+                        messagebit = getBitAtPoss(colorvalue, 8, modeLSB);
+
+                        datahide = (byte)shiftLeftSomeBit(datahide, (byte)modeLSB);
+                        datahide += messagebit;
+                    }
+                    filesize = shiftLeftSomeBit(filesize, 8);
+                    filesize += datahide;
+                    datahide = 0;
+                }
+
+                // BAGIAN BACA DATAN
+                // generate INSERTION MESSAGE INTO BITMAP FILE
+                for (int i = 0; i < filesize; ++i)
+                {
+                    datahide = 0;
+                        for (int j = 1; j <= (8/modeLSB); ++j)
                         {
                             coordinate = rdm.Next(containersize);
                             int colorplace, coord, x, y;
@@ -434,46 +475,10 @@ namespace image
                                 colorvalue = tempbitmap.GetPixel(x, y).B;
 
                             messagebit = getBitAtPoss(colorvalue, 8, modeLSB);
-
-                            datahide = (byte)shiftLeftSomeBit(datahide, 1);
-                            datahide += messagebit;
-                            
-                        }
-                        resultmessage[i] = datahide;
-                    }
-                    else
-                    if (modeLSB == 2)
-                    {
-                        for (int j = 1; j <= 4; ++j)
-                        {
-                            // ambil koordinat penyimpan pesan
-                            coordinate = rdm.Next(containersize);
-                            int colorplace, coord, x, y;
-                            coord = coordinate / 3;
-                            colorplace = coordinate % 3; // R, G, or B
-                            if (colorplace == 0)
-                            {
-                                colorplace = 3;
-                                coord -= 1;
-                            }
-                            y = coord / tempbitmap.Width;
-                            x = coord % tempbitmap.Width;
-
-                            if (colorplace == 1)
-                                colorvalue = tempbitmap.GetPixel(x, y).R;
-                            else
-                            if (colorplace == 2)
-                                colorvalue = tempbitmap.GetPixel(x, y).G;
-                            else
-                                colorvalue = tempbitmap.GetPixel(x, y).B;
-
-                            messagebit = getBitAtPoss(colorvalue, 7, modeLSB);
-
-                            datahide = (byte)shiftLeftSomeBit(datahide, 2);
+                            datahide = (byte)shiftLeftSomeBit(datahide, (byte)modeLSB);
                             datahide += messagebit;
                         }
                         resultmessage[i] = datahide;
-                    }
                 }
             }
             MessageBox.Show("Pesan berhasil diekstrak");
