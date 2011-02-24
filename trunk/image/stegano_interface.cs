@@ -22,6 +22,7 @@ namespace image
         result myresultpict = new result();
         private string filename;
         private byte[] resultmessage;
+        private int filesize;
 
         // METHODS
         public stegano_interface()
@@ -159,61 +160,6 @@ namespace image
             return (value >> shifting);
         }
 
-
-        private void insertbyByte()
-        {
-            if ((namafile.Text != "") && (textBox1.Text != "") && (key != ""))
-            {
-                key = keyarea.Text;
-                modeLSB = comboBox1.SelectedIndex;
-                int containersize = tempbitmap.Width * tempbitmap.Height * 3;
-
-                if (containersize < message.Length * 8)
-                {
-                    MessageBox.Show("Ukuran file yang akan disisipkan terlalu besar");
-                }
-                else
-                {
-                    //if (statusencript) // encript first
-                    //  message = vigenere.decrypt(message, key);
-
-                    int seed = getSeed(key);
-                    Random rdm = new Random(seed);
-
-                    byte messagebit;
-                    int coordinate;
-
-                    // generate INSERTION MESSAGE INTO BITMAP FILE
-                    for (int i = 0; i < message.Length; ++i)
-                    {
-                        byte datasend = message[i];
-                        if (modeLSB == 1)
-                        {
-                            for (int j = 1; j <= 8; ++j)
-                            {
-                                messagebit = getBitAtPoss(datasend, j, modeLSB);
-                                coordinate = rdm.Next(mypicture.Length);
-                                mypicture[coordinate] = changeLast1or2Bit(mypicture[coordinate], 255);
-                            }
-                        }
-                        else
-                            if (modeLSB == 2)
-                            {
-                                for (int j = 1; j <= 4; ++j)
-                                {
-                                    messagebit = getBitAtPoss(datasend, 2 * j - 1, modeLSB);
-                                    coordinate = rdm.Next(mypicture.Length);
-                                    mypicture[coordinate] = changeLast1or2Bit(mypicture[coordinate], messagebit);
-                                }
-                            }
-                    }
-
-                    // load result image into new window
-                    loadResultBitmap();
-                }
-            }
-        }
-
         private void insertbyPicture()
         {
             key = keyarea.Text;
@@ -229,7 +175,32 @@ namespace image
                 else
                 {
                     if (statusencript) // encript first
-                      message = vigenere.decrypt(message, key);
+                        message = vigenere.encrypt(message, key);
+
+
+                    //memasukkan header
+                    //format message namafile*ukuran(4byte)isi
+                    byte[] newmessage = new byte[filename.Length + 5 + filesize];
+                    char[] nama =filename.ToCharArray();
+
+                    int i,j;
+                    for (i=0; i < nama.Length; i++)
+                    {
+                        newmessage[i] = (byte)nama[i];
+                    }
+                    newmessage[i++] = (byte)'*';
+
+                    byte[] ukuran = BitConverter.GetBytes(filesize);
+                    for (j = i; i < 4 + j; i++)
+                    {
+                        newmessage[i] = ukuran[i - j];
+                    }
+                    for (j = i; i < j + message.Length; i++)
+                    {
+                        newmessage[i] = message[i - j];
+                    }
+
+                    message = newmessage;
 
                     int seed = getSeed(key);
                     Random rdm = new Random(seed);
@@ -237,14 +208,14 @@ namespace image
                     byte messagebit = 1;
                     int coordinate;
                     byte colorvalue;
-                   
+
                     // generate INSERTION MESSAGE INTO BITMAP FILE
-                    for (int i = 0; i < message.Length; ++i)
+                    for (i = 0; i < message.Length; ++i)
                     {
                         byte datasend = message[i];
                         if (modeLSB == 1)
                         {
-                            for (int j = 1; j <= 8; ++j)
+                            for (j = 1; j <= 8; ++j)
                             {
                                 messagebit = getBitAtPoss(datasend, j, modeLSB);
                                 // koordinat gambar (0,0) di kiri atas
@@ -260,14 +231,14 @@ namespace image
                                 }
                                 y = coord / tempbitmap.Width;
                                 x = coord % tempbitmap.Width;
-                                
+
                                 if (colorplace == 1)
                                     colorvalue = tempbitmap.GetPixel(x, y).R;
                                 else
-                                if (colorplace == 2)
-                                    colorvalue = tempbitmap.GetPixel(x, y).G;
-                                else
-                                    colorvalue = tempbitmap.GetPixel(x, y).B;
+                                    if (colorplace == 2)
+                                        colorvalue = tempbitmap.GetPixel(x, y).G;
+                                    else
+                                        colorvalue = tempbitmap.GetPixel(x, y).B;
 
                                 colorvalue = changeLast1or2Bit(colorvalue, messagebit);
                                 tempbitmap.SetPixel(x, y, changeAColorInAPixel(tempbitmap.GetPixel(x, y), colorplace, colorvalue));
@@ -276,7 +247,7 @@ namespace image
                         else
                             if (modeLSB == 2)
                             {
-                                for (int j = 1; j <= 4; ++j)
+                                for (j = 1; j <= 4; ++j)
                                 {
                                     messagebit = getBitAtPoss(datasend, 2 * j - 1, modeLSB);
                                     coordinate = rdm.Next(containersize);
@@ -309,6 +280,10 @@ namespace image
                     loadResultBitmap();
                 }
             }
+            else
+            {
+                MessageBox.Show("isian belum lengkap");
+            }
         }
 
         // prosedur untuk melakukan penyisipan pesan dari gambar bitmap yang dimasukkan
@@ -328,7 +303,9 @@ namespace image
 
             if (openFile1.FileName != "")
             {
+                filename = openFile1.SafeFileName;
                 message = File.ReadAllBytes(openFile1.FileName);
+                filesize = message.Length;
                 
                 if (((message.Length + openFile1.SafeFileName.Length + 5) * 8) > (sourcepict.Image.PhysicalDimension.Height * sourcepict.Image.PhysicalDimension.Width * 3))
                 {
@@ -337,15 +314,6 @@ namespace image
                 else // ukuran memenuhi
                 {
                     textBox1.Text = openFile1.SafeFileName;
-
-                    //INI BAGIAN UNTUK MENGAMBIL PESAN
-                    i = 0;
-                    char c = (char)message[i];
-                    byte[] u = new byte[4];
-                    u[0] = message[i++];
-                    u[1] = message[i++];
-                    u[2] = message[i++];
-                    u[3] = message[i++];
                 }
             }
 
@@ -415,7 +383,7 @@ namespace image
                 for (int j = 1; j < 4; ++j)
                 {
                     coordinate = rdm.Next(containersize);
-                    for (int j = 1; j <= (8/modeLSB); ++j)
+                    for (int k = 1; k <= (8/modeLSB); ++k)
                     {
                         coordinate = rdm.Next(containersize);
                         int colorplace, coord, x, y;
