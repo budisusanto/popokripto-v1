@@ -14,19 +14,20 @@ namespace image
     {
         // ATRIBUT
         private bool statusencript = false;
-        private string filename;
         private int modeLSB = 1;
         private byte[] message;
+        private byte[] mypicture;
         private string key;
-        private int[][] dummybitmap;
         Bitmap tempbitmap;
         result myresultpict = new result();
+        private string filename;
+        private byte[] resultmessage;
 
         // METHODS
         public stegano_interface()
         {
             InitializeComponent();
-            textBox2.Text = generateRandomSeed(8, 20, 30)[1].ToString();
+            //textBox2.Text = generateRandomSeed(8, 20, 30)[1].ToString();
         }
 
         [STAThread]
@@ -38,14 +39,14 @@ namespace image
         // load result bitmap ke jendela baru
         private void loadResultBitmap()
         {
-            myresultpict.setPicture(tempbitmap);
+            myresultpict.setPicture(tempbitmap, mypicture);
             double psnrval = hitung.PSNR(hitung.rms((Bitmap)sourcepict.Image, tempbitmap));
             myresultpict.PSNR.Text = psnrval.ToString();
             if (psnrval > 30)
                 myresultpict.psnr_kategori.Text = "kualitas citra bagus";
             else
                 myresultpict.psnr_kategori.Text = "citra terdegradasi signifikan";
-            myresultpict.Show();
+                myresultpict.Show();
         }
 
         //prosedur yang dijalankan saat tombol pencarian file di tekan
@@ -54,17 +55,17 @@ namespace image
             OpenFileDialog openfile = new OpenFileDialog();
 
             openfile.Title = "Cari gambar sumber";
-            openfile.Filter = "Bitmap Image|*.bmp";//JPeg Image|*.jpg|Gif Image|*.gif";
+            openfile.Filter = "Bitmap Image|*.bmp";
             openfile.ShowDialog();
             
             if (openfile.FileName != "")
             {
                 namafile.Text = openfile.FileName;
-                filename = openfile.SafeFileName; // menyimpan nama file
-                sourcepict.Image = new Bitmap(namafile.Text);
+                mypicture = File.ReadAllBytes(openfile.FileName);
 
                 pesanfile.Enabled = true;
 
+                sourcepict.Image = new Bitmap(namafile.Text);
                 tempbitmap = (Bitmap)sourcepict.Image;
             }
         }
@@ -73,19 +74,6 @@ namespace image
         private void checkencript_MouseClick(object sender, MouseEventArgs e)
         {
             statusencript = !(statusencript);
-        }
-
-        // prosedur untuk menyimpan file hasil dekripsi
-        private void saveas_Click(object sender, EventArgs e)
-        {
-            //
-        }
-
-
-        private int getRandomCoordinate()
-        {
-            // DARI LALA
-            return modeLSB;
         }
 
         // generate random from seed
@@ -105,7 +93,6 @@ namespace image
         // prosedur untuk mengganti elemen warna pada pixel[x,y] pada warna ke -color, dengan nilai value
         private Color changeAColorInAPixel(Color source, int color, byte value)
         {
-            byte A = source.A;
             byte R = source.R;
             byte G = source.G;
             byte B = source.B;
@@ -121,7 +108,7 @@ namespace image
             {
                 B = value;
             }
-
+            source = Color.FromArgb(R, G, B);
             return source;
         }
 
@@ -147,7 +134,7 @@ namespace image
         //mengambil nilai bit pada posisi tertentu pada variabel sumber
         private byte getBitAtPoss(byte source, int poss, int LSB) {
             // shift bit source
-            int temp = shiftRightSomeBit(source, (byte)(8 - poss));
+            int temp = shiftRightSomeBit(source, (byte)(8 - poss - LSB + 1));
             if (LSB == 1)
                 return ((byte)(temp & 1));
             else
@@ -157,7 +144,7 @@ namespace image
         // prosedur untuk mengubah nilai 1 bit / 2 bit terakhir dengan nilai value
         private byte changeLast1or2Bit(byte source, byte values)
         {
-            return (byte)(shiftRightSomeBit(shiftLeftSomeBit(source, (byte)modeLSB), (byte)modeLSB) + values);
+            return (byte)(shiftLeftSomeBit(shiftRightSomeBit(source, (byte)modeLSB), (byte)modeLSB) + values);
         }
 
         // prosedur untuk menggeser ke kiri nilai bit suatu bilangan
@@ -172,79 +159,168 @@ namespace image
             return (value >> shifting);
         }
 
+
+        private void insertbyByte()
+        {
+            if ((namafile.Text != "") && (textBox1.Text != "") && (key != ""))
+            {
+                key = keyarea.Text;
+                modeLSB = comboBox1.SelectedIndex;
+                int containersize = tempbitmap.Width * tempbitmap.Height * 3;
+
+                if (containersize < message.Length * 8)
+                {
+                    MessageBox.Show("Ukuran file yang akan disisipkan terlalu besar");
+                }
+                else
+                {
+                    //if (statusencript) // encript first
+                    //  message = vigenere.decrypt(message, key);
+
+                    int seed = getSeed(key);
+                    Random rdm = new Random(seed);
+
+                    byte messagebit;
+                    int coordinate;
+
+                    // generate INSERTION MESSAGE INTO BITMAP FILE
+                    for (int i = 0; i < message.Length; ++i)
+                    {
+                        byte datasend = message[i];
+                        if (modeLSB == 1)
+                        {
+                            for (int j = 1; j <= 8; ++j)
+                            {
+                                messagebit = getBitAtPoss(datasend, j, modeLSB);
+                                coordinate = rdm.Next(mypicture.Length);
+                                mypicture[coordinate] = changeLast1or2Bit(mypicture[coordinate], 255);
+                            }
+                        }
+                        else
+                            if (modeLSB == 2)
+                            {
+                                for (int j = 1; j <= 4; ++j)
+                                {
+                                    messagebit = getBitAtPoss(datasend, 2 * j - 1, modeLSB);
+                                    coordinate = rdm.Next(mypicture.Length);
+                                    mypicture[coordinate] = changeLast1or2Bit(mypicture[coordinate], messagebit);
+                                }
+                            }
+                    }
+
+                    // load result image into new window
+                    loadResultBitmap();
+                }
+            }
+        }
+
+        private void insertbyPicture()
+        {
+            key = keyarea.Text;
+            modeLSB = comboBox1.SelectedIndex + 1;
+            int containersize = tempbitmap.Width * tempbitmap.Height * 3;
+
+            if ((namafile.Text != "") && (textBox1.Text != "") && (key != ""))
+            {
+                if (containersize < message.Length * 8)
+                {
+                    MessageBox.Show("Ukuran file yang akan disisipkan terlalu besar");
+                }
+                else
+                {
+                    if (statusencript) // encript first
+                      message = vigenere.decrypt(message, key);
+
+                    int seed = getSeed(key);
+                    Random rdm = new Random(seed);
+
+                    byte messagebit = 1;
+                    int coordinate;
+                    byte colorvalue;
+                   
+                    // generate INSERTION MESSAGE INTO BITMAP FILE
+                    for (int i = 0; i < message.Length; ++i)
+                    {
+                        byte datasend = message[i];
+                        if (modeLSB == 1)
+                        {
+                            for (int j = 1; j <= 8; ++j)
+                            {
+                                messagebit = getBitAtPoss(datasend, j, modeLSB);
+                                // koordinat gambar (0,0) di kiri atas
+
+                                coordinate = rdm.Next(containersize);
+                                int colorplace, coord, x, y;
+                                coord = coordinate / 3;
+                                colorplace = coordinate % 3; // R, G, or B
+                                if (colorplace == 0)
+                                {
+                                    colorplace = 3;
+                                    coord -= 1;
+                                }
+                                y = coord / tempbitmap.Width;
+                                x = coord % tempbitmap.Width;
+                                
+                                if (colorplace == 1)
+                                    colorvalue = tempbitmap.GetPixel(x, y).R;
+                                else
+                                if (colorplace == 2)
+                                    colorvalue = tempbitmap.GetPixel(x, y).G;
+                                else
+                                    colorvalue = tempbitmap.GetPixel(x, y).B;
+
+                                colorvalue = changeLast1or2Bit(colorvalue, messagebit);
+                                tempbitmap.SetPixel(x, y, changeAColorInAPixel(tempbitmap.GetPixel(x, y), colorplace, colorvalue));
+                            }
+                        }
+                        else
+                            if (modeLSB == 2)
+                            {
+                                for (int j = 1; j <= 4; ++j)
+                                {
+                                    messagebit = getBitAtPoss(datasend, 2 * j - 1, modeLSB);
+                                    coordinate = rdm.Next(containersize);
+                                    int colorplace, coord, x, y;
+                                    coord = coordinate / 3;
+                                    colorplace = coordinate % 3; // R, G, or B
+                                    if (colorplace == 0)
+                                    {
+                                        colorplace = 3;
+                                        coord -= 1;
+                                    }
+                                    y = coord / tempbitmap.Width;
+                                    x = coord % tempbitmap.Width;
+
+                                    if (colorplace == 1)
+                                        colorvalue = tempbitmap.GetPixel(x, y).R;
+                                    else
+                                        if (colorplace == 2)
+                                            colorvalue = tempbitmap.GetPixel(x, y).G;
+                                        else
+                                            colorvalue = tempbitmap.GetPixel(x, y).B;
+
+                                    colorvalue = changeLast1or2Bit(colorvalue, messagebit);
+                                    tempbitmap.SetPixel(x, y, changeAColorInAPixel(tempbitmap.GetPixel(x, y), colorplace, colorvalue));
+                                }
+                            }
+                    }
+
+                    // load result image into new window
+                    loadResultBitmap();
+                }
+            }
+        }
+
         // prosedur untuk melakukan penyisipan pesan dari gambar bitmap yang dimasukkan
         private void btn_insert_Click(object sender, EventArgs e)
         {
-            /*key = keyarea.Text;
-            modeLSB = comboBox1.SelectedIndex;
-
-            if ((filename != "") && (message != "") && (key != ""))
-            {
-                if (statusencript) // encript first
-                    message = vigenere.decrypt(message, key);
-
-                int seed = getSeed(key);
-                byte messagebit;
-                int coordinate;
-                byte colorvalue;
-
-                // generate INSERTION MESSAGE INTO BITMAP FILE
-                for (int i = 0; i < message.Length; ++i)
-                {
-                    byte datasend = (byte)message[i];
-                    if (modeLSB == 1)
-                    {
-                        for (int j = 1; j <= 8; ++j)
-                        {
-                            messagebit = getBitAtPoss(datasend, j, modeLSB);
-                            coordinate = getRandomCoordinate();
-
-                            // koordinat gambar (0,0) di kiri atas
-                            int rest, coord, x, y;
-                            coord = coordinate / 3;
-                            rest = coordinate % 3; // R, G, or B
-                            y = coord / 3;
-                            x = (coord % 3) | (tempbitmap.Width);
-
-                            if (rest == 1)
-                                colorvalue = tempbitmap.GetPixel(x, y).R;
-                            else
-                            if (rest == 2)
-                                colorvalue = tempbitmap.GetPixel(x, y).G;
-                            else
-                                colorvalue = tempbitmap.GetPixel(x, y).B;
-
-                            colorvalue = changeLast1or2Bit(colorvalue, getBitAtPoss(datasend, j, 1));
-
-                            Color dummy = changeAColorInAPixel(tempbitmap.GetPixel(x, y), colorvalue, (byte)rest);
-                            tempbitmap.SetPixel(x, y, dummy);
-
-                        }
-                    } else
-                    if (modeLSB == 2)
-                    {
-                        for (int j = 1; j <= 4; ++j)
-                        {
-                            messagebit = getBitAtPoss(datasend, 2*j-1, modeLSB);
-                            coordinate = getRandomCoordinate();
-
-
-
-
-                        }
-                    }
-                }
-            }
-            */
-            // load result image into new window
-            loadResultBitmap();
+            insertbyPicture();
         }
 
         // prosedur yang dijalankan ketika tombol cari pada bagian isi pesan ditekan.
         // file name yang diklik akan dicek besarnya dan dibandingkan besar kontainer image yang tersedia.
         private void pesanfile_Click(object sender, EventArgs e)
         {
-            
             OpenFileDialog openFile1 = new OpenFileDialog();
             
             openFile1.Title = "Cari nama file pesan";
@@ -252,65 +328,171 @@ namespace image
 
             if (openFile1.FileName != "")
             {
-                byte[] isi = File.ReadAllBytes(filename);
-                char[] namafile = openFile1.SafeFileName.ToCharArray();
-                int ukuran = isi.Length;
-
-                //buat message
-                //format message namafile*ukuran(32 bit)isi
+                message = File.ReadAllBytes(openFile1.FileName);
                 
-                message = new byte[ukuran + namafile.Length + 5];
-                int i = 0;
-                for (; i < namafile.Length; i++)
-                {
-                    message[i] = (byte)namafile[i];
-                }
-                message[i++] = (byte)'*';
-                
-                byte[] temp = BitConverter.GetBytes(ukuran);
-
-                int j = i;
-                for (; i < 4 + j; i++)
-                {
-                    message[i] = temp[i-j];
-                }
-
-                j = i;
-                for (; i < j + isi.Length; i++)
-                {
-                    message[i] = isi[i-j];
-                }
-                if ((message.Length*8) > (sourcepict.Image.PhysicalDimension.Height * sourcepict.Image.PhysicalDimension.Width * 3))
+                if (((message.Length + openFile1.SafeFileName.Length + 5) * 8) > (sourcepict.Image.PhysicalDimension.Height * sourcepict.Image.PhysicalDimension.Width * 3))
                 {
                     MessageBox.Show("ukuran file pesan terlalu besar");
                 }
                 else // ukuran memenuhi
                 {
-                    textBox1.Text = filename;
+                    textBox1.Text = openFile1.SafeFileName;
 
                     //INI BAGIAN UNTUK MENGAMBIL PESAN
                     i = 0;
                     char c = (char)message[i];
-                    for (; c != '*'; i++)
-                    {
-                        MessageBox.Show(""+ (char)message[i]);
-                        c = (char)message[i];
-                    }
                     byte[] u = new byte[4];
                     u[0] = message[i++];
                     u[1] = message[i++];
                     u[2] = message[i++];
                     u[3] = message[i++];
-                    MessageBox.Show(""+ BitConverter.ToInt32(u,0));
                 }
             }
 
         }
 
+        // prosedur untuk mengekstrak pesan
         private void btn_extract_Click(object sender, EventArgs e)
         {
+            if ((namafile.Text != "") && (key != ""))
+            {
+                key = keyarea.Text;
+                modeLSB = comboBox1.SelectedIndex + 1;
+                int containersize = tempbitmap.Width * tempbitmap.Height * 3;
 
+                int seed = getSeed(key);
+                Random rdm = new Random(seed);
+
+                byte messagebit = 1;
+                int coordinate;
+                byte colorvalue;
+
+                bool checkfilename = false;
+                byte datahide = 0;
+                
+
+                while (datahide!= 42)
+                {
+                    coordinate = rdm.Next(containersize);
+                    for (int j = 1; j <= 8; ++j)
+                    {
+                        coordinate = rdm.Next(containersize);
+                        int colorplace, coord, x, y;
+                        coord = coordinate / 3;
+                        colorplace = coordinate % 3; // R, G, or B
+                        if (colorplace == 0)
+                        {
+                            colorplace = 3;
+                            coord -= 1;
+                        }
+                        y = coord / tempbitmap.Width;
+                        x = coord % tempbitmap.Width;
+
+                        if (colorplace == 1)
+                            colorvalue = tempbitmap.GetPixel(x, y).R;
+                        else
+                            if (colorplace == 2)
+                                colorvalue = tempbitmap.GetPixel(x, y).G;
+                            else
+                                colorvalue = tempbitmap.GetPixel(x, y).B;
+
+                        messagebit = getBitAtPoss(colorvalue, 8, modeLSB);
+
+                        datahide = (byte)shiftLeftSomeBit(datahide, 1);
+                        datahide += messagebit;
+
+                    }
+                    resultmessage[i] = datahide;
+                }
+                
+                // generate INSERTION MESSAGE INTO BITMAP FILE
+                for (int i = 0; i < message.Length; ++i)
+                {
+                    byte datahide = 0;
+                    if (modeLSB == 1)
+                    {
+                        for (int j = 1; j <= 8; ++j)
+                        {
+                            coordinate = rdm.Next(containersize);
+                            int colorplace, coord, x, y;
+                            coord = coordinate / 3;
+                            colorplace = coordinate % 3; // R, G, or B
+                            if (colorplace == 0)
+                            {
+                                colorplace = 3;
+                                coord -= 1;
+                            }
+                            y = coord / tempbitmap.Width;
+                            x = coord % tempbitmap.Width;
+
+                            if (colorplace == 1)
+                                colorvalue = tempbitmap.GetPixel(x, y).R;
+                            else
+                            if (colorplace == 2)
+                                colorvalue = tempbitmap.GetPixel(x, y).G;
+                            else
+                                colorvalue = tempbitmap.GetPixel(x, y).B;
+
+                            messagebit = getBitAtPoss(colorvalue, 8, modeLSB);
+
+                            datahide = (byte)shiftLeftSomeBit(datahide, 1);
+                            datahide += messagebit;
+                            
+                        }
+                        resultmessage[i] = datahide;
+                    }
+                    else
+                    if (modeLSB == 2)
+                    {
+                        for (int j = 1; j <= 4; ++j)
+                        {
+                            // ambil koordinat penyimpan pesan
+                            coordinate = rdm.Next(containersize);
+                            int colorplace, coord, x, y;
+                            coord = coordinate / 3;
+                            colorplace = coordinate % 3; // R, G, or B
+                            if (colorplace == 0)
+                            {
+                                colorplace = 3;
+                                coord -= 1;
+                            }
+                            y = coord / tempbitmap.Width;
+                            x = coord % tempbitmap.Width;
+
+                            if (colorplace == 1)
+                                colorvalue = tempbitmap.GetPixel(x, y).R;
+                            else
+                            if (colorplace == 2)
+                                colorvalue = tempbitmap.GetPixel(x, y).G;
+                            else
+                                colorvalue = tempbitmap.GetPixel(x, y).B;
+
+                            messagebit = getBitAtPoss(colorvalue, 7, modeLSB);
+
+                            datahide = (byte)shiftLeftSomeBit(datahide, 2);
+                            datahide += messagebit;
+                        }
+                        resultmessage[i] = datahide;
+                    }
+                }
+            }
+            MessageBox.Show("Pesan berhasil diekstrak");
             saveas.Visible = true;
+        }
+
+        private void saveas_Click(object sender, EventArgs e)
+        {
+            
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+            saveFileDialog1.Filter = "All files (*.*)|*.*";
+            saveFileDialog1.Title = "Simpan hasil"; 
+            saveFileDialog1.ShowDialog();
+
+            // If the file name is not an empty string open it for saving.
+            if (saveFileDialog1.FileName != "")
+            {
+                File.WriteAllBytes(saveFileDialog1.FileName, resultmessage);
+            }
         }
     }
 }
