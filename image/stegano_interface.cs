@@ -166,7 +166,7 @@ namespace image
             modeLSB = comboBox1.SelectedIndex + 1;
             int containersize = tempbitmap.Width * tempbitmap.Height * 3;
 
-            if ((namafile.Text != "") && (textBox1.Text != "") && (key != ""))
+            if ((namafile.Text != "") && (textBox1.Text != "") && (key != "") && (comboBox1.Text != ""))
             {
                 if (containersize < message.Length * 8)
                 {
@@ -190,11 +190,13 @@ namespace image
                     }
                     newmessage[i++] = (byte)'*';
 
-                    byte[] ukuran = BitConverter.GetBytes(filesize);
-                    for (j = i; i < 4 + j; i++)
-                    {
-                        newmessage[i] = ukuran[i - j];
-                    }
+                    newmessage[i++] = (byte)(filesize >> 24);
+                    newmessage[i++] = (byte)(filesize >> 16);
+                    newmessage[i++] = (byte)(filesize >> 8);
+                    newmessage[i++] = (byte)(filesize);
+
+                    MessageBox.Show("" + newmessage[i - 4] + " " + newmessage[i - 3] + " " + newmessage[i - 2] + " " + newmessage[i - 1] + " ");
+
                     for (j = i; i < j + message.Length; i++)
                     {
                         newmessage[i] = message[i - j];
@@ -306,15 +308,20 @@ namespace image
                 filename = openFile1.SafeFileName;
                 message = File.ReadAllBytes(openFile1.FileName);
                 filesize = message.Length;
-                
-                if (((message.Length + openFile1.SafeFileName.Length + 5) * 8) > (sourcepict.Image.PhysicalDimension.Height * sourcepict.Image.PhysicalDimension.Width * 3))
+
+                for (int i = 0; i < filesize; i++)
                 {
-                    MessageBox.Show("ukuran file pesan terlalu besar");
+                    Console.Write((char)message[i]);
                 }
-                else // ukuran memenuhi
-                {
-                    textBox1.Text = openFile1.SafeFileName;
-                }
+
+                    if (((message.Length + openFile1.SafeFileName.Length + 5) * 8) > (sourcepict.Image.PhysicalDimension.Height * sourcepict.Image.PhysicalDimension.Width * 3))
+                    {
+                        MessageBox.Show("ukuran file pesan terlalu besar");
+                    }
+                    else // ukuran memenuhi
+                    {
+                        textBox1.Text = openFile1.SafeFileName;
+                    }
             }
 
         }
@@ -376,6 +383,7 @@ namespace image
                         datahide += messagebit;
                     }
                     filename += datahide;
+                    MessageBox.Show(""+(char)datahide);
                 }
 
                 // ABIS INI BACA FILE SIZE NYA 4 BYTE
@@ -413,6 +421,7 @@ namespace image
                     filesize += datahide;
                     datahide = 0;
                 }
+                MessageBox.Show("filesize = "+filesize);
 
                 // BAGIAN BACA DATAN
                 // generate INSERTION MESSAGE INTO BITMAP FILE
@@ -448,6 +457,7 @@ namespace image
                             datahide += messagebit;
                         }
                         resultmessage[i] = datahide;
+                        MessageBox.Show("" + (char)datahide);
                 }
             }
             MessageBox.Show("Pesan berhasil diekstrak");
