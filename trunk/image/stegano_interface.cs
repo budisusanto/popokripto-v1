@@ -322,9 +322,9 @@ namespace image
         // prosedur untuk mengekstrak pesan
         private void btn_extract_Click(object sender, EventArgs e)
         {
+            key = keyarea.Text;
             if ((namafile.Text != "") && (key != ""))
             {
-                key = keyarea.Text;
                 modeLSB = comboBox1.SelectedIndex + 1;
                 int containersize = tempbitmap.Width * tempbitmap.Height * 3;
 
@@ -350,7 +350,7 @@ namespace image
 
                     for (int j = 1; j <= (8/modeLSB); ++j) // iterasi buat 1 atau 2 LSB
                     {
-                        coordinate = rdm.Next(containersize);
+                        coordinate = rdm.Next(1,containersize);
                         int colorplace, coord, x, y;
                         coord = coordinate / 3;
                         colorplace = coordinate % 3; // R, G, or B
@@ -370,13 +370,12 @@ namespace image
                             else
                                 colorvalue = tempbitmap.GetPixel(x, y).B;
 
-                        messagebit = getBitAtPoss(colorvalue, 8, modeLSB);
+                        messagebit = getBitAtPoss(colorvalue, 9 - modeLSB, modeLSB);
 
                         datahide = (byte)shiftLeftSomeBit(datahide, (byte)modeLSB);
                         datahide += messagebit;
                     }
                     filename += datahide;
-                    datahide = 0;
                 }
 
                 // ABIS INI BACA FILE SIZE NYA 4 BYTE
@@ -405,7 +404,7 @@ namespace image
                             else
                                 colorvalue = tempbitmap.GetPixel(x, y).B;
 
-                        messagebit = getBitAtPoss(colorvalue, 8, modeLSB);
+                        messagebit = getBitAtPoss(colorvalue, 9 - modeLSB, modeLSB);
 
                         datahide = (byte)shiftLeftSomeBit(datahide, (byte)modeLSB);
                         datahide += messagebit;
@@ -417,12 +416,14 @@ namespace image
 
                 // BAGIAN BACA DATAN
                 // generate INSERTION MESSAGE INTO BITMAP FILE
+                resultmessage = new byte[filesize];
+
                 for (int i = 0; i < filesize; ++i)
                 {
                     datahide = 0;
                         for (int j = 1; j <= (8/modeLSB); ++j)
                         {
-                            coordinate = rdm.Next(containersize);
+                            coordinate = rdm.Next(1,containersize);
                             int colorplace, coord, x, y;
                             coord = coordinate / 3;
                             colorplace = coordinate % 3; // R, G, or B
@@ -442,7 +443,7 @@ namespace image
                             else
                                 colorvalue = tempbitmap.GetPixel(x, y).B;
 
-                            messagebit = getBitAtPoss(colorvalue, 8, modeLSB);
+                            messagebit = getBitAtPoss(colorvalue, 9 - modeLSB, modeLSB);
                             datahide = (byte)shiftLeftSomeBit(datahide, (byte)modeLSB);
                             datahide += messagebit;
                         }
