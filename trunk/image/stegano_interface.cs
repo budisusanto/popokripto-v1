@@ -222,7 +222,8 @@ namespace image
                                 messagebit = getBitAtPoss(datasend, j, modeLSB);
                                 // koordinat gambar (0,0) di kiri atas
 
-                                coordinate = rdm.Next(containersize);
+                                coordinate = rdm.Next(1,containersize);
+                                Console.WriteLine(coordinate);
                                 int colorplace, coord, x, y;
                                 coord = coordinate / 3;
                                 colorplace = coordinate % 3; // R, G, or B
@@ -252,7 +253,8 @@ namespace image
                                 for (j = 1; j <= 4; ++j)
                                 {
                                     messagebit = getBitAtPoss(datasend, 2 * j - 1, modeLSB);
-                                    coordinate = rdm.Next(containersize);
+                                    coordinate = rdm.Next(1,containersize);
+                                    Console.WriteLine(coordinate);
                                     int colorplace, coord, x, y;
                                     coord = coordinate / 3;
                                     colorplace = coordinate % 3; // R, G, or B
@@ -311,6 +313,7 @@ namespace image
 
                 for (int i = 0; i < filesize; i++)
                 {
+                    Console.WriteLine("pesan");
                     Console.Write((char)message[i]);
                 }
 
@@ -353,11 +356,13 @@ namespace image
                 // INI BAGIAN BACA NAMA FILE NYA
                 while (datahide!= 42)
                 {
-                    coordinate = rdm.Next(containersize);
+                    coordinate = rdm.Next(1,containersize);
+                    Console.WriteLine(coordinate);
 
                     for (int j = 1; j <= (8/modeLSB); ++j) // iterasi buat 1 atau 2 LSB
                     {
                         coordinate = rdm.Next(1,containersize);
+                        Console.WriteLine(coordinate);
                         int colorplace, coord, x, y;
                         coord = coordinate / 3;
                         colorplace = coordinate % 3; // R, G, or B
@@ -381,18 +386,21 @@ namespace image
 
                         datahide = (byte)shiftLeftSomeBit(datahide, (byte)modeLSB);
                         datahide += messagebit;
+                        MessageBox.Show(coordinate + " bit " + messagebit);
                     }
                     filename += datahide;
-                    MessageBox.Show(""+(char)datahide);
+                    MessageBox.Show(""+datahide);
                 }
 
                 // ABIS INI BACA FILE SIZE NYA 4 BYTE
                 for (int j = 1; j < 4; ++j)
                 {
-                    coordinate = rdm.Next(containersize);
+                    coordinate = rdm.Next(1,containersize);
+                    Console.WriteLine(coordinate);
                     for (int k = 1; k <= (8/modeLSB); ++k)
                     {
-                        coordinate = rdm.Next(containersize);
+                        coordinate = rdm.Next(1,containersize);
+                        Console.WriteLine(coordinate);
                         int colorplace, coord, x, y;
                         coord = coordinate / 3;
                         colorplace = coordinate % 3; // R, G, or B
@@ -433,6 +441,7 @@ namespace image
                         for (int j = 1; j <= (8/modeLSB); ++j)
                         {
                             coordinate = rdm.Next(1,containersize);
+                            Console.WriteLine(coordinate);
                             int colorplace, coord, x, y;
                             coord = coordinate / 3;
                             colorplace = coordinate % 3; // R, G, or B
