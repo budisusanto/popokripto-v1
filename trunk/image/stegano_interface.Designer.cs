@@ -38,7 +38,6 @@
             this.btn_extract = new System.Windows.Forms.Button();
             this.btn_insert = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.keyarea = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
@@ -66,7 +65,6 @@
             this.panel1.Controls.Add(this.btn_extract);
             this.panel1.Controls.Add(this.btn_insert);
             this.panel1.Controls.Add(this.label3);
-            this.panel1.Controls.Add(this.textBox2);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.keyarea);
             this.panel1.Controls.Add(this.button1);
@@ -111,7 +109,7 @@
             // saveas
             // 
             this.saveas.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.saveas.Location = new System.Drawing.Point(734, 125);
+            this.saveas.Location = new System.Drawing.Point(537, 109);
             this.saveas.Name = "saveas";
             this.saveas.Size = new System.Drawing.Size(108, 27);
             this.saveas.TabIndex = 5;
@@ -146,7 +144,7 @@
             // btn_extract
             // 
             this.btn_extract.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.btn_extract.Location = new System.Drawing.Point(557, 125);
+            this.btn_extract.Location = new System.Drawing.Point(436, 109);
             this.btn_extract.Name = "btn_extract";
             this.btn_extract.Size = new System.Drawing.Size(86, 27);
             this.btn_extract.TabIndex = 3;
@@ -157,7 +155,7 @@
             // btn_insert
             // 
             this.btn_insert.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.btn_insert.Location = new System.Drawing.Point(438, 125);
+            this.btn_insert.Location = new System.Drawing.Point(436, 59);
             this.btn_insert.Name = "btn_insert";
             this.btn_insert.Size = new System.Drawing.Size(86, 27);
             this.btn_insert.TabIndex = 4;
@@ -175,15 +173,6 @@
             this.label3.Size = new System.Drawing.Size(173, 15);
             this.label3.TabIndex = 6;
             this.label3.Text = "Masukkan Pesan dari File";
-            // 
-            // textBox2
-            // 
-            this.textBox2.Location = new System.Drawing.Point(438, 69);
-            this.textBox2.Multiline = true;
-            this.textBox2.Name = "textBox2";
-            this.textBox2.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox2.Size = new System.Drawing.Size(404, 49);
-            this.textBox2.TabIndex = 5;
             // 
             // label2
             // 
@@ -289,7 +278,6 @@
         private System.Windows.Forms.OpenFileDialog openfile;
         private System.Windows.Forms.CheckBox checkencript;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox keyarea;
         private System.Windows.Forms.Button btn_extract;
