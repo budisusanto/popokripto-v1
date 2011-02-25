@@ -260,7 +260,7 @@ namespace image
                                 {
                                     messagebit = getBitAtPoss(datasend, 2 * j - 1, modeLSB);
                                     coordinate = random();
-                                    //Console.WriteLine(coordinate);
+
                                     int colorplace, coord, x, y;
                                     coord = coordinate / 3;
                                     colorplace = coordinate % 3; // R, G, or B
@@ -280,9 +280,6 @@ namespace image
                                         else
                                             colorvalue = tempbitmap.GetPixel(x, y).B;
 
-                                    //Console.Write(colorvalue + " ");
-                                    //Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);
-                        
                                     colorvalue = changeLast1or2Bit(colorvalue, messagebit);
                                     tempbitmap.SetPixel(x, y, changeAColorInAPixel(tempbitmap.GetPixel(x, y), colorplace, colorvalue));
                                 }
@@ -352,7 +349,6 @@ namespace image
                     for (int j = 1; j <= (8/modeLSB); ++j) // iterasi buat 1 atau 2 LSB
                     {
                         coordinate = random();
-                        //Console.WriteLine(coordinate);
                         int colorplace, coord, x, y;
                         coord = coordinate / 3;
                         colorplace = coordinate % 3; // R, G, or B
@@ -374,16 +370,11 @@ namespace image
 
                         messagebit = getBitAtPoss(colorvalue, 9 - modeLSB, modeLSB);
 
-                        //Console.Write(colorvalue + " ");
                         datahide = (byte)shiftLeftSomeBit(datahide, (byte)modeLSB);
                         datahide += messagebit;
-                        //Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);
-                                
                     }
                     if(datahide!=42)
                         filename += (char)datahide;
-                    //Console.WriteLine();
-                    //MessageBox.Show(""+(char)datahide + datahide);
                 }
 
                 // ABIS INI BACA FILE SIZE NYA 4 BYTE
@@ -392,7 +383,6 @@ namespace image
                     for (int k = 1; k <= (8/modeLSB); ++k)
                     {
                         coordinate = random();
-                        //Console.WriteLine(coordinate);
                         int colorplace, coord, x, y;
                         coord = coordinate / 3;
                         colorplace = coordinate % 3; // R, G, or B
@@ -416,16 +406,12 @@ namespace image
 
                         datahide = (byte)shiftLeftSomeBit(datahide, (byte)modeLSB);
                         datahide += messagebit;
-                        //Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);
-                        
                     }
                     filesize = shiftLeftSomeBit(filesize, 8);
                     filesize += datahide;
                     datahide = 0;
-                    //Console.WriteLine();
                 }
-                //MessageBox.Show("filesize = "+filesize);
-
+                
                 // BAGIAN BACA DATAN
                 // generate INSERTION MESSAGE INTO BITMAP FILE
                 resultmessage = new byte[filesize];
@@ -436,7 +422,6 @@ namespace image
                         for (int j = 1; j <= (8/modeLSB); ++j)
                         {
                             coordinate = random();
-                            //Console.WriteLine(coordinate);
                             int colorplace, coord, x, y;
                             coord = coordinate / 3;
                             colorplace = coordinate % 3; // R, G, or B
@@ -459,12 +444,8 @@ namespace image
                             messagebit = getBitAtPoss(colorvalue, 9 - modeLSB, modeLSB);
                             datahide = (byte)shiftLeftSomeBit(datahide, (byte)modeLSB);
                             datahide += messagebit;
-                            //Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);
-                        
                         }
                         resultmessage[i] = datahide;
-                        //Console.WriteLine();
-                        //MessageBox.Show("" + (char)datahide);
                 }
                 if (statusencript)
                     resultmessage = vigenere.decrypt(resultmessage, key);
@@ -489,7 +470,6 @@ namespace image
                 if (saveFileDialog1.FileName != "")
             {
                 File.WriteAllBytes(saveFileDialog1.FileName, resultmessage);
-                MessageBox.Show("OK");
             }
         }
 

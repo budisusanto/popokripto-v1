@@ -33,7 +33,7 @@ namespace image
                 }
             }
 
-            hasil = Math.Sqrt((double)jml / (double)(m * n));
+            hasil = (double) Math.Sqrt((double)jml / (double)(m * n));
             return hasil;
         }
     }
