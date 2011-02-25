@@ -31,7 +31,6 @@ namespace image
         public stegano_interface()
         {
             InitializeComponent();
-            //textBox2.Text = generateRandomSeed(8, 20, 30)[1].ToString();
         }
 
         [STAThread]
@@ -92,7 +91,7 @@ namespace image
                 pesanfile.Enabled = true;
 
                 sourcepict.Image = new Bitmap(namafile.Text);
-                tempbitmap = (Bitmap)sourcepict.Image;
+                tempbitmap = (Bitmap)sourcepict.Image.Clone();
             }
         }
 
@@ -125,7 +124,7 @@ namespace image
         }
 
         // mencari nilai seed dari string kunci
-        // ambil bagian genapnya aja
+        // ambil bagian genapnya saja
         private int getSeed(string key)
         {
             int len = key.Length;
@@ -206,8 +205,6 @@ namespace image
                     newmessage[i++] = (byte)(filesize >> 8);
                     newmessage[i++] = (byte)(filesize);
 
-                    //MessageBox.Show("" + newmessage[i - 4] + " " + newmessage[i - 3] + " " + newmessage[i - 2] + " " + newmessage[i - 1] + " ");
-
                     for (j = i; i < j + message.Length; i++)
                     {
                         newmessage[i] = message[i - j];
@@ -252,15 +249,9 @@ namespace image
                                     else
                                         colorvalue = tempbitmap.GetPixel(x, y).B;
                                 }
-                                //Console.Write(colorvalue + " ");
-                                //Console.WriteLine("random: " + coordinate +"(x,y):" + x + ","+ y + " bit:" + messagebit);
-                                colorvalue = changeLast1or2Bit(colorvalue, messagebit);
-                                //Console.WriteLine("sblm ganti warna : " + tempbitmap.GetPixel(x, y).R + " " + tempbitmap.GetPixel(x, y).G + " " + tempbitmap.GetPixel(x, y).B + " " + messagebit);
-                                tempbitmap.SetPixel(x, y, changeAColorInAPixel(tempbitmap.GetPixel(x, y), colorplace, colorvalue));
-                                //Console.WriteLine("sblm ganti warna : " + tempbitmap.GetPixel(x, y).R + " " + tempbitmap.GetPixel(x, y).G + " " + tempbitmap.GetPixel(x, y).B + " " + colorvalue);
-                                //Console.WriteLine();
+                                colorvalue = changeLast1or2Bit(colorvalue, messagebit);tempbitmap.SetPixel(x, y, changeAColorInAPixel(tempbitmap.GetPixel(x, y), colorplace, colorvalue));
+                                
                             }
-                            //Console.WriteLine();
                         }
                         else
                             if (modeLSB == 2)
@@ -389,7 +380,8 @@ namespace image
                         //Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);
                                 
                     }
-                    filename += datahide;
+                    if(datahide!=42)
+                        filename += (char)datahide;
                     //Console.WriteLine();
                     //MessageBox.Show(""+(char)datahide + datahide);
                 }
@@ -487,15 +479,23 @@ namespace image
         {
             
             SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+            saveFileDialog1.FileName = filename;
             saveFileDialog1.Filter = "All files (*.*)|*.*";
             saveFileDialog1.Title = "Simpan hasil"; 
             saveFileDialog1.ShowDialog();
 
             // If the file name is not an empty string open it for saving.
-            if (saveFileDialog1.FileName != "")
+          
+                if (saveFileDialog1.FileName != "")
             {
                 File.WriteAllBytes(saveFileDialog1.FileName, resultmessage);
+                MessageBox.Show("OK");
             }
+        }
+
+        private void stegano_interface_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
