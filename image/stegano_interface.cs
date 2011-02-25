@@ -23,6 +23,9 @@ namespace image
         private string filename;
         private byte[] resultmessage;
         private int filesize;
+        private ArrayList sudahrandom = new ArrayList();
+        Random rdm;
+        int containersize;
 
         // METHODS
         public stegano_interface()
@@ -35,6 +38,28 @@ namespace image
         static void Main()
         {
             Application.Run(new stegano_interface());
+        }
+
+        int random()
+        {
+            int n;
+            if (rdm != null)
+            {
+                n = rdm.Next(1, containersize);
+                while (sudahrandom.Contains(n))
+                {
+                    n = rdm.Next(1, containersize);
+                }
+                sudahrandom.Add(n);
+                return n;
+            }
+            else
+            {
+                rdm = new Random(getSeed(keyarea.Text));
+                n = rdm.Next(1, containersize);
+                sudahrandom.Add(n);
+                return n;
+            }
         }
 
         // load result bitmap ke jendela baru
@@ -75,20 +100,6 @@ namespace image
         private void checkencript_MouseClick(object sender, MouseEventArgs e)
         {
             statusencript = !(statusencript);
-        }
-
-        // generate random from seed
-        private ArrayList generateRandomSeed(int length, int seed, int maxsize)
-        {
-            ArrayList myarray = new ArrayList();
-
-            Random rdm = new Random(seed);
-            for (int i = 0; i < length; ++i)
-            {
-                myarray.Add(rdm.Next(maxsize));
-            }
-
-            return myarray;
         }
 
         // prosedur untuk mengganti elemen warna pada pixel[x,y] pada warna ke -color, dengan nilai value
@@ -164,11 +175,11 @@ namespace image
         {
             key = keyarea.Text;
             modeLSB = comboBox1.SelectedIndex + 1;
-            int containersize = tempbitmap.Width * tempbitmap.Height * 3;
+            containersize = tempbitmap.Width * tempbitmap.Height * 3;
 
             if ((namafile.Text != "") && (textBox1.Text != "") && (key != "") && (comboBox1.Text != ""))
             {
-                if (containersize < message.Length * 8)
+                if (containersize * modeLSB < message.Length * 8)
                 {
                     MessageBox.Show("Ukuran file yang akan disisipkan terlalu besar");
                 }
@@ -204,9 +215,6 @@ namespace image
 
                     message = newmessage;
 
-                    int seed = getSeed(key);
-                    Random rdm = new Random(seed);
-
                     byte messagebit = 1;
                     int coordinate;
                     byte colorvalue;
@@ -222,7 +230,7 @@ namespace image
                                 messagebit = getBitAtPoss(datasend, j, modeLSB);
                                 // koordinat gambar (0,0) di kiri atas
 
-                                coordinate = rdm.Next(1,containersize);
+                                coordinate = random();
                                 
                                 int colorplace, coord, x, y;
                                 coord = coordinate / 3;
@@ -244,15 +252,15 @@ namespace image
                                     else
                                         colorvalue = tempbitmap.GetPixel(x, y).B;
                                 }
-                                Console.Write(colorvalue + " ");
-                                Console.WriteLine("random: " + coordinate +"(x,y):" + x + ","+ y + " bit:" + messagebit);
+                                //Console.Write(colorvalue + " ");
+                                //Console.WriteLine("random: " + coordinate +"(x,y):" + x + ","+ y + " bit:" + messagebit);
                                 colorvalue = changeLast1or2Bit(colorvalue, messagebit);
                                 //Console.WriteLine("sblm ganti warna : " + tempbitmap.GetPixel(x, y).R + " " + tempbitmap.GetPixel(x, y).G + " " + tempbitmap.GetPixel(x, y).B + " " + messagebit);
                                 tempbitmap.SetPixel(x, y, changeAColorInAPixel(tempbitmap.GetPixel(x, y), colorplace, colorvalue));
                                 //Console.WriteLine("sblm ganti warna : " + tempbitmap.GetPixel(x, y).R + " " + tempbitmap.GetPixel(x, y).G + " " + tempbitmap.GetPixel(x, y).B + " " + colorvalue);
-                                Console.WriteLine();
+                                //Console.WriteLine();
                             }
-                            Console.WriteLine();
+                            //Console.WriteLine();
                         }
                         else
                             if (modeLSB == 2)
@@ -260,7 +268,7 @@ namespace image
                                 for (j = 1; j <= 4; ++j)
                                 {
                                     messagebit = getBitAtPoss(datasend, 2 * j - 1, modeLSB);
-                                    coordinate = rdm.Next(1,containersize);
+                                    coordinate = random();
                                     //Console.WriteLine(coordinate);
                                     int colorplace, coord, x, y;
                                     coord = coordinate / 3;
@@ -281,8 +289,8 @@ namespace image
                                         else
                                             colorvalue = tempbitmap.GetPixel(x, y).B;
 
-                                    Console.Write(colorvalue + " ");
-                                    Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);
+                                    //Console.Write(colorvalue + " ");
+                                    //Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);
                         
                                     colorvalue = changeLast1or2Bit(colorvalue, messagebit);
                                     tempbitmap.SetPixel(x, y, changeAColorInAPixel(tempbitmap.GetPixel(x, y), colorplace, colorvalue));
@@ -293,6 +301,8 @@ namespace image
                     // load result image into new window
                     loadResultBitmap();
                 }
+                rdm = null;
+                sudahrandom = new ArrayList();
             }
             else
             {
@@ -321,21 +331,7 @@ namespace image
                 filename = openFile1.SafeFileName;
                 message = File.ReadAllBytes(openFile1.FileName);
                 filesize = message.Length;
-
-                for (int i = 0; i < filesize; i++)
-                {
-                    //Console.WriteLine("pesan");
-                    //Console.Write((char)message[i]);
-                }
-
-                    if (((message.Length + openFile1.SafeFileName.Length + 5) * 8) > (sourcepict.Image.PhysicalDimension.Height * sourcepict.Image.PhysicalDimension.Width * 3))
-                    {
-                        MessageBox.Show("ukuran file pesan terlalu besar");
-                    }
-                    else // ukuran memenuhi
-                    {
-                        textBox1.Text = openFile1.SafeFileName;
-                    }
+                textBox1.Text = openFile1.SafeFileName;
             }
 
         }
@@ -347,10 +343,7 @@ namespace image
             if ((namafile.Text != "") && (key != ""))
             {
                 modeLSB = comboBox1.SelectedIndex + 1;
-                int containersize = tempbitmap.Width * tempbitmap.Height * 3;
-
-                int seed = getSeed(key);
-                Random rdm = new Random(seed);
+                containersize = tempbitmap.Width * tempbitmap.Height * 3;
 
                 byte messagebit = 1;
                 int coordinate;
@@ -365,12 +358,9 @@ namespace image
                 // INI BAGIAN BACA NAMA FILE NYA
                 while (datahide!= 42)
                 {
-                    //coordinate = rdm.Next(1,containersize);
-                    //Console.WriteLine(coordinate);
-
                     for (int j = 1; j <= (8/modeLSB); ++j) // iterasi buat 1 atau 2 LSB
                     {
-                        coordinate = rdm.Next(1,containersize);
+                        coordinate = random();
                         //Console.WriteLine(coordinate);
                         int colorplace, coord, x, y;
                         coord = coordinate / 3;
@@ -393,26 +383,23 @@ namespace image
 
                         messagebit = getBitAtPoss(colorvalue, 9 - modeLSB, modeLSB);
 
-                        Console.Write(colorvalue + " ");
+                        //Console.Write(colorvalue + " ");
                         datahide = (byte)shiftLeftSomeBit(datahide, (byte)modeLSB);
                         datahide += messagebit;
-                        Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);
+                        //Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);
                                 
                     }
                     filename += datahide;
-                    Console.WriteLine();
-                    MessageBox.Show(""+(char)datahide + datahide);
+                    //Console.WriteLine();
+                    //MessageBox.Show(""+(char)datahide + datahide);
                 }
 
                 // ABIS INI BACA FILE SIZE NYA 4 BYTE
                 for (int j = 1; j <= 4; ++j)
                 {
-                    Console.WriteLine("ana cantik");
-                    //coordinate = rdm.Next(1,containersize);
-                    //Console.WriteLine(coordinate);
                     for (int k = 1; k <= (8/modeLSB); ++k)
                     {
-                        coordinate = rdm.Next(1,containersize);
+                        coordinate = random();
                         //Console.WriteLine(coordinate);
                         int colorplace, coord, x, y;
                         coord = coordinate / 3;
@@ -437,15 +424,15 @@ namespace image
 
                         datahide = (byte)shiftLeftSomeBit(datahide, (byte)modeLSB);
                         datahide += messagebit;
-                        Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);
+                        //Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);
                         
                     }
                     filesize = shiftLeftSomeBit(filesize, 8);
                     filesize += datahide;
                     datahide = 0;
-                    Console.WriteLine();
+                    //Console.WriteLine();
                 }
-                MessageBox.Show("filesize = "+filesize);
+                //MessageBox.Show("filesize = "+filesize);
 
                 // BAGIAN BACA DATAN
                 // generate INSERTION MESSAGE INTO BITMAP FILE
@@ -456,7 +443,7 @@ namespace image
                     datahide = 0;
                         for (int j = 1; j <= (8/modeLSB); ++j)
                         {
-                            coordinate = rdm.Next(1,containersize);
+                            coordinate = random();
                             //Console.WriteLine(coordinate);
                             int colorplace, coord, x, y;
                             coord = coordinate / 3;
@@ -480,16 +467,20 @@ namespace image
                             messagebit = getBitAtPoss(colorvalue, 9 - modeLSB, modeLSB);
                             datahide = (byte)shiftLeftSomeBit(datahide, (byte)modeLSB);
                             datahide += messagebit;
-                            Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);
+                            //Console.WriteLine("random: " + coordinate + "(x,y):" + x + "," + y + " bit:" + messagebit);
                         
                         }
                         resultmessage[i] = datahide;
-                        Console.WriteLine();
-                        MessageBox.Show("" + (char)datahide);
+                        //Console.WriteLine();
+                        //MessageBox.Show("" + (char)datahide);
                 }
+                if (statusencript)
+                    resultmessage = vigenere.decrypt(resultmessage, key);
+                MessageBox.Show("Pesan berhasil diekstrak");
+                saveas.Visible = true;
+                rdm = null;
+                sudahrandom = new ArrayList();
             }
-            MessageBox.Show("Pesan berhasil diekstrak");
-            saveas.Visible = true;
         }
 
         private void saveas_Click(object sender, EventArgs e)
