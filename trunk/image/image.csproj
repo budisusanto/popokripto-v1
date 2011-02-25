@@ -49,11 +49,11 @@
     <Compile Include="bitmap.cs" />
     <Compile Include="hitung.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="result.cs">
+    <Compile Include="resulthasil.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="result.Designer.cs">
-      <DependentUpon>result.cs</DependentUpon>
+    <Compile Include="resulthasil.Designer.cs">
+      <DependentUpon>resulthasil.cs</DependentUpon>
     </Compile>
     <Compile Include="stegano_interface.cs">
       <SubType>Form</SubType>
@@ -71,8 +71,8 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="result.resx">
-      <DependentUpon>result.cs</DependentUpon>
+    <EmbeddedResource Include="resulthasil.resx">
+      <DependentUpon>resulthasil.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="stegano_interface.resx">
       <DependentUpon>stegano_interface.cs</DependentUpon>
