@@ -8,3 +8,13 @@ c:\users\asus\documents\visual studio 2010\Projects\image\image\obj\x86\Debug\im
 c:\users\asus\documents\visual studio 2010\Projects\image\image\obj\x86\Debug\image.pdb
 c:\users\asus\documents\visual studio 2010\Projects\image\image\obj\x86\Debug\image.stegano_interface.resources
 C:\Users\asus\Documents\Visual Studio 2010\Projects\image\image\obj\x86\Debug\image.result.resources
+D:\steganografi\image\obj\x86\Debug\image.exe
+D:\steganografi\image\obj\x86\Debug\image.pdb
+D:\steganografi\image\bin\Debug\image.exe
+D:\steganografi\image\bin\Debug\image.pdb
+D:\steganografi\image\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\steganografi\image\obj\x86\Debug\image.Properties.Resources.resources
+D:\steganografi\image\obj\x86\Debug\image.result.resources
+D:\steganografi\image\obj\x86\Debug\image.stegano_interface.resources
+D:\steganografi\image\obj\x86\Debug\GenerateResource.read.1.tlog
+D:\steganografi\image\obj\x86\Debug\GenerateResource.write.1.tlog

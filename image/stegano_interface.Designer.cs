@@ -259,6 +259,7 @@
             this.Controls.Add(this.panel1);
             this.Name = "stegano_interface";
             this.Text = "stegano_interface";
+            this.Load += new System.EventHandler(this.stegano_interface_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
